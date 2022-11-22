@@ -343,10 +343,10 @@ const ReceiveReturn: React.FC = () => {
                         <Text bold>NO.</Text>
                       </DataTable.Title>
                       <DataTable.Title style={styles.table_title_54}>
-                        <Text bold>FG</Text>
+                        <Text bold>PART</Text>
                       </DataTable.Title>
                       <DataTable.Title numeric style={styles.table_title_18}>
-                        <Text bold>GOOD</Text>
+                        <Text bold>RECEIVE</Text>
                       </DataTable.Title>
                       <DataTable.Title numeric style={styles.table_title_18}>
                         <Text bold>TOTAL</Text>
@@ -359,7 +359,7 @@ const ReceiveReturn: React.FC = () => {
                             {value.No}
                           </DataTable.Title>
                           <DataTable.Cell style={styles.table_title_54}>
-                            {value.FG}
+                            {value.Part}
                           </DataTable.Cell>
                           <DataTable.Cell numeric style={styles.table_title_18}>
                             <Text bold color={"green.600"}>

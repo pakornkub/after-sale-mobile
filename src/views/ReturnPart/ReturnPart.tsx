@@ -3,19 +3,18 @@ import { useQueryClient } from "react-query";
 import {
   TouchableWithoutFeedback,
   Keyboard,
-  RefreshControl,
   ScrollView,
   TouchableOpacity,
 } from "react-native";
 import {
   Box,
   Input,
-  Select,
   Icon,
   VStack,
   Button,
   useToast,
   FormControl,
+  HStack,
   Text,
 } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -26,18 +25,14 @@ import LoadingScreen from "../../components/LoadingScreen";
 import AppScanner from "../../components/AppScanner";
 import AppAlert from "../../components/AppAlert";
 
-import {
-  useReceiveSP,
-  useReceiveSPItem,
-  useExecReceiveSPTransactions,
-  useUpdateReceiveSP,
-} from "../../hooks/useReceiveSP";
+import { useCheckPart } from "../../hooks/useCheckPart";
+import { useUpdateReturnPart } from "../../hooks/useReturnPart";
 
-import {styles} from "../styles";
+import { styles } from "../styles";
 
-const ReceiveSP: React.FC = () => {
-  const initOrder = { Rec_ID: "" };
-  const initItem = { QR_NO: "", Tag_ID: "" };
+const ReturnPart: React.FC = () => {
+  const initItem = { QR_NO: "" };
+  const initItems: any[] = [];
   const initErrors = {};
 
   const toast = useToast();
@@ -45,8 +40,8 @@ const ReceiveSP: React.FC = () => {
 
   const [camera, setCamera] = useState<boolean>(false);
 
-  const [order, setOrder] = useState<any>(initOrder);
   const [item, setItem] = useState<any>(initItem);
+  const [items, setItems] = useState<any>(initItems);
   const [errors, setErrors] = useState<any>(initErrors);
 
   const [disabledButton, setDisabledButton] = useState<boolean>(true);
@@ -55,31 +50,14 @@ const ReceiveSP: React.FC = () => {
   const refScanner = useRef<boolean>(false);
 
   const {
-    isLoading: orderIsLoading,
-    isFetching,
-    isError,
-    data: orderData,
-    refetch: orderRefetch,
-    status,
-    error,
-  } = useReceiveSP();
-
-  const {
     isLoading: itemIsLoading,
+    status: itemStatus,
+    error: itemError,
     data: itemData,
     refetch: itemRefetch,
-  } = useReceiveSPItem({
-    Rec_ID: order?.Rec_ID || "",
+  } = useCheckPart({
+    QR_NO: item?.QR_NO || "",
   });
-
-  const {
-    isLoading: transIsLoading,
-    isError: transIsError,
-    status: transStatus,
-    error: transError,
-    mutate: transMutate,
-    data: transData,
-  } = useExecReceiveSPTransactions();
 
   const {
     isLoading: updateIsLoading,
@@ -88,17 +66,7 @@ const ReceiveSP: React.FC = () => {
     error: updateError,
     mutate: updateMutate,
     data: updateData,
-  } = useUpdateReceiveSP();
-
-  const handleChangeOrder = (value: string) => {
-    if (!value) {
-      return;
-    }
-
-    clearState("Error");
-
-    setOrder({ ...order, Rec_ID: value });
-  };
+  } = useUpdateReturnPart();
 
   const handleScanner = (value: any) => {
     setCamera(false);
@@ -111,27 +79,20 @@ const ReceiveSP: React.FC = () => {
 
     const qr = getDataFromQR(value);
 
-    setItem({ ...item, QR_NO: qr?.QR_NO || "", Tag_ID: qr?.Tag_ID || "" });
+    setItem({
+      ...item,
+      QR_NO: qr?.QR_NO || "",
+    });
 
     refScanner.current = true;
   };
 
   const handleSubmit = () => {
-    updateMutate(order);
+    updateMutate(items);
   };
 
   const calculateTotal = () => {
-    const sumLock =
-      itemData?.data?.data?.reduce((previousValue: any, currentValue: any) => {
-        return previousValue + parseInt(currentValue.Lock);
-      }, 0) || 0;
-
-    const sumTotal =
-      itemData?.data?.data?.reduce((previousValue: any, currentValue: any) => {
-        return previousValue + parseInt(currentValue.Total);
-      }, 0) || 0;
-
-    if (parseInt(sumLock) === parseInt(sumTotal) && parseInt(sumLock) !== 0) {
+    if (parseInt(items.length) <= 20 && parseInt(items.length) > 0) {
       setDisabledButton(false);
     }
   };
@@ -139,14 +100,49 @@ const ReceiveSP: React.FC = () => {
   const validateErrors = () => {
     refScanner.current = false;
 
-    if (!order.Rec_ID) {
-      setErrors({ ...errors, Rec_ID: "Receive Order is required" });
+    if (!item.QR_NO) {
+      setErrors({ ...errors, QR_NO: "Invalid QR format" });
       clearState("Item");
       return false;
     }
 
-    if (!item.QR_NO || !item.Tag_ID) {
-      setErrors({ ...errors, QR_NO: "Invalid QR format" });
+    if (!itemData.data.status) {
+      setErrors({ ...errors, QR_NO: `${itemData.data.message}` });
+      clearState("Item");
+      return false;
+    }
+
+    /* if (
+      !itemData.data.data.Location_ID ||
+      parseInt(itemData.data.data.Location_ID) !== 1
+    ) {
+      setErrors({ ...errors, QR_NO: "Product not in Store Repack Location" });
+      clearState("Item");
+      return false;
+    } */
+
+    if (
+      !itemData.data.data.ItemStatus_ID ||
+      (
+        parseInt(itemData.data.data.ItemStatus_ID) !== 5)
+    ) {
+      setErrors({ ...errors, QR_NO: "Status product is not Good" });
+      clearState("Item");
+      return false;
+    }
+
+    if (
+      items.filter((value: any) => {
+        return value.QR_NO === item.QR_NO;
+      }).length > 0
+    ) {
+      setErrors({ ...errors, QR_NO: "QR No. this duplicate in list" });
+      clearState("Item");
+      return false;
+    }
+
+    if (parseInt(items.length) === 20) {
+      setErrors({ ...errors, QR_NO: "Total completed can not scan" });
       clearState("Item");
       return false;
     }
@@ -156,14 +152,14 @@ const ReceiveSP: React.FC = () => {
 
   const clearState = (type: string) => {
     if (type === "All") {
-      setOrder(initOrder);
       setItem(initItem);
+      setItems(initItems);
       setErrors(initErrors);
       setDisabledButton(true);
     } else if (type === "Item") {
       setItem(initItem);
-    } else if (type === "Order") {
-      setOrder(initOrder);
+    } else if (type === "Items") {
+      setItems(initItems);
     } else {
       setErrors(initErrors);
     }
@@ -171,48 +167,26 @@ const ReceiveSP: React.FC = () => {
 
   useEffect(() => {
     itemRefetch();
-  }, [order]);
-
-  useEffect(() => {
-    if (refScanner.current && validateErrors()) {
-      transMutate({ ...order, ...item });
-    }
+    calculateTotal();
   }, [item]);
 
   useEffect(() => {
-    calculateTotal();
-  }, [itemData]);
-
-  useEffect(() => {
-    if (transStatus === "success") {
-      toast.show({
-        render: () => (
-          <AppAlert
-            text={transData?.data?.message || "success"}
-            type="success"
-          />
-        ),
-        placement: "top",
-        duration: 2000,
-      });
-    } else if (transStatus === "error") {
-      toast.show({
-        render: () => (
-          <AppAlert
-            text={transError?.response?.data?.message || "error"}
-            type="error"
-          />
-        ),
-        placement: "top",
-        duration: 3000,
-      });
+    if (!itemData) {
+      return;
     }
 
-    return () => {
-      refScanner.current = false;
+    if (refScanner.current && validateErrors()) {
+      let itemQR = { ...(itemData?.data?.data || {}) };
+
+      let itemList = [...items];
+
+      itemList.push(itemQR);
+
+      setItems(itemList);
+
       clearState("Item");
-    };
-  }, [transStatus]);
+    }
+  }, [itemData]);
 
   useEffect(() => {
     if (updateStatus === "success") {
@@ -261,35 +235,8 @@ const ReceiveSP: React.FC = () => {
       {!camera ? (
         <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
           <Box flex={1}>
-            <LoadingScreen show={updateIsLoading || transIsLoading} />
+            <LoadingScreen show={itemIsLoading || updateIsLoading} />
             <VStack space={10} p={5}>
-              <FormControl isRequired isInvalid={"Rec_ID" in errors}>
-                <Select
-                  h={50}
-                  size={20}
-                  width={"100%"}
-                  accessibilityLabel="Choose Service"
-                  placeholder="RECEIVE PART ORDER NO."
-                  selectedValue={order?.Rec_ID || ""}
-                  onValueChange={(value) => handleChangeOrder(value)}
-                >
-                  {orderData?.data?.data?.map((value: any) => {
-                    return (
-                      <Select.Item
-                        key={value.Rec_ID}
-                        shadow={2}
-                        label={value.Rec_NO}
-                        value={value.Rec_ID}
-                      />
-                    );
-                  })}
-                </Select>
-                {"Rec_ID" in errors && (
-                  <FormControl.ErrorMessage>
-                    {errors.Rec_ID}
-                  </FormControl.ErrorMessage>
-                )}
-              </FormControl>
               <FormControl isRequired isInvalid={"QR_NO" in errors}>
                 <Input
                   h={50}
@@ -319,13 +266,7 @@ const ReceiveSP: React.FC = () => {
               </FormControl>
               <ScrollView
                 keyboardShouldPersistTaps="handled"
-                style={{ height: "50%" }}
-                refreshControl={
-                  <RefreshControl
-                    refreshing={itemIsLoading}
-                    onRefresh={() => orderRefetch()}
-                  />
-                }
+                style={{ height: "45%" }}
               >
                 <TouchableOpacity activeOpacity={1}>
                   <DataTable>
@@ -333,36 +274,28 @@ const ReceiveSP: React.FC = () => {
                       <DataTable.Title style={styles.table_title_10}>
                         <Text bold>NO.</Text>
                       </DataTable.Title>
-                      <DataTable.Title style={styles.table_title_54}>
-                        <Text bold>PART</Text>
+                      <DataTable.Title style={styles.table_title_36}>
+                        <Text bold>QR NO.</Text>
                       </DataTable.Title>
-                      <DataTable.Title numeric style={styles.table_title_18}>
-                        <Text bold>LOCK</Text>
-                      </DataTable.Title>
-                      <DataTable.Title numeric style={styles.table_title_18}>
-                        <Text bold>TOTAL</Text>
+                      <DataTable.Title>
+                        <Text bold>ITEM CODE</Text>
                       </DataTable.Title>
                     </DataTable.Header>
-                    {itemData?.data?.data?.map((value: any, key: number) => {
-                      return (
-                        <DataTable.Row key={key}>
-                          <DataTable.Title style={styles.table_title_10}>
-                            {value.No}
-                          </DataTable.Title>
-                          <DataTable.Cell style={styles.table_title_54}>
-                            {value.SP}
-                          </DataTable.Cell>
-                          <DataTable.Cell numeric style={styles.table_title_18}>
-                            <Text bold color={"red.600"}>
-                              {value.Lock}
-                            </Text>
-                          </DataTable.Cell>
-                          <DataTable.Cell numeric style={styles.table_title_18}>
-                            {value.Total}
-                          </DataTable.Cell>
-                        </DataTable.Row>
-                      );
-                    }) || (
+                    {items.length > 0 ? (
+                      items.map((value: any, key: number) => {
+                        return (
+                          <DataTable.Row key={key}>
+                            <DataTable.Title style={styles.table_title_10}>
+                              {key + 1}
+                            </DataTable.Title>
+                            <DataTable.Cell style={styles.table_title_36}>
+                              {value.QR_NO}
+                            </DataTable.Cell>
+                            <DataTable.Cell>{value.ITEM_CODE}</DataTable.Cell>
+                          </DataTable.Row>
+                        );
+                      })
+                    ) : (
                       <DataTable.Row>
                         <DataTable.Title>No Data</DataTable.Title>
                       </DataTable.Row>
@@ -370,6 +303,18 @@ const ReceiveSP: React.FC = () => {
                   </DataTable>
                 </TouchableOpacity>
               </ScrollView>
+              <VStack>
+                <HStack alignItems={"center"} justifyContent={"space-between"}>
+                  <Text fontSize={25}>{`RETURN`}</Text>
+                  <Text fontSize={25}>
+                    <Text bold color={"red.600"}>{`${items.length || 0}`}</Text>
+                  </Text>
+                </HStack>
+                <HStack alignItems={"center"} justifyContent={"space-between"}>
+                  <Text fontSize={25}>{`MAX`}</Text>
+                  <Text fontSize={25}>{`20`}</Text>
+                </HStack>
+              </VStack>
               <Button
                 backgroundColor="green.600"
                 leftIcon={
@@ -390,4 +335,4 @@ const ReceiveSP: React.FC = () => {
   );
 };
 
-export default ReceiveSP;
+export default ReturnPart;

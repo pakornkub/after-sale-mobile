@@ -1,19 +1,19 @@
 import { useMutation } from "react-query";
 import { httpClient } from "../services/axios";
 
-export const useUpdateWithdraw = () => {
+export const useUpdateReturnPart = () => {
 
-  const updateWithdraw = async (params: any): Promise<any> => {
+  const updateReturnPart = async (params: any): Promise<any> => {
     let data = new FormData();
 
     data.append('Items', JSON.stringify(params) || "");
 
-    return await httpClient.post("/update_withdraw", data);
+    return await httpClient.post("/update_return_part", data);
   };
 
   return useMutation<any, any, any>(
-    "UpdateWithdraw",
-    (params) => updateWithdraw(params),
+    "UpdateReturnPart",
+    (params) => updateReturnPart(params),
     {
       onSuccess: (response) => {
 

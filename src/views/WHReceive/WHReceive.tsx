@@ -25,7 +25,7 @@ import LoadingScreen from "../../components/LoadingScreen";
 import AppScanner from "../../components/AppScanner";
 import AppAlert from "../../components/AppAlert";
 
-import { useCheckStock } from "../../hooks/useCheckStock";
+import { useCheckPart } from "../../hooks/useCheckPart";
 import { useUpdateWHReceive } from "../../hooks/useWHReceive";
 
 import { styles } from "../styles";
@@ -55,7 +55,7 @@ const WHReceive: React.FC = () => {
     error: itemError,
     data: itemData,
     refetch: itemRefetch,
-  } = useCheckStock({
+  } = useCheckPart({
     QR_NO: item?.QR_NO || "",
   });
 

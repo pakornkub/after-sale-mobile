@@ -18,14 +18,14 @@ import {
 } from "native-base";
 import { MaterialIcons } from "@expo/vector-icons";
 
-import { useCheckStock } from "../../hooks/useCheckStock";
+import { useCheckPart } from "../../hooks/useCheckPart";
 
 import { getDataFromQR } from "../../utils/qr";
 import LoadingScreen from "../../components/LoadingScreen";
 import AppScanner from "../../components/AppScanner";
 import AppAlert from "../../components/AppAlert";
 
-const CheckStock: React.FC = () => {
+const CheckPart: React.FC = () => {
   const initItem = { QR_NO: "" };
   const initItemDetail = {};
   const initErrors = {};
@@ -48,7 +48,7 @@ const CheckStock: React.FC = () => {
     error: itemError,
     data: itemData,
     refetch: itemRefetch,
-  } = useCheckStock({
+  } = useCheckPart({
     QR_NO: item?.QR_NO || "",
   });
 
@@ -196,30 +196,30 @@ const CheckStock: React.FC = () => {
                 </Text>
                 <Divider style={styles.divider} />
                 <Text fontSize="md">
-                  <Text style={styles.textHeader}>RECEIVE :{`   `}</Text>
+                  <Text style={styles.textHeader}>ORDER NO :{`   `}</Text>
                   <Text style={styles.textContent}>
                     {itemDetail?.Rec_NO || ""}
                   </Text>
                 </Text>
                 <Divider style={styles.divider} />
                 <Text fontSize="md">
-                  <Text style={styles.textHeader}>RECEIVE DATE :{`   `}</Text>
+                  <Text style={styles.textHeader}>ORDER DATE :{`   `}</Text>
                   <Text style={styles.textContent}>
                     {itemDetail?.Rec_Datetime || ""}
                   </Text>
                 </Text>
                 <Divider style={styles.divider} />
                 <Text fontSize="md">
-                  <Text style={styles.textHeader}>JOB :{`   `}</Text>
+                  <Text style={styles.textHeader}>PRODUCT :{`   `}</Text>
                   <Text style={styles.textContent}>
-                    {itemDetail?.JOB_No || ""}
+                    {itemDetail?.ITEM_CODE || ""}
                   </Text>
                 </Text>
                 <Divider style={styles.divider} />
                 <Text fontSize="md">
-                  <Text style={styles.textHeader}>ITEM :{`   `}</Text>
+                  <Text style={styles.textHeader}>PRODUCT TYPE :{`   `}</Text>
                   <Text style={styles.textContent}>
-                    {itemDetail?.ITEM_CODE || ""}
+                    {itemDetail?.Product_Des || ""}
                   </Text>
                 </Text>
                 <Divider style={styles.divider} />
@@ -227,13 +227,6 @@ const CheckStock: React.FC = () => {
                   <Text style={styles.textHeader}>LOT :{`   `}</Text>
                   <Text style={styles.textContent}>
                     {itemDetail?.LOT || ""}
-                  </Text>
-                </Text>
-                <Divider style={styles.divider} />
-                <Text fontSize="md">
-                  <Text style={styles.textHeader}>DESCRIPTION :{`   `}</Text>
-                  <Text style={styles.textContent}>
-                    {itemDetail?.ITEM_DESCRIPTION || ""}
                   </Text>
                 </Text>
                 <Divider style={styles.divider} />
@@ -259,9 +252,16 @@ const CheckStock: React.FC = () => {
                 </Text>
                 <Divider style={styles.divider} />
                 <Text fontSize="md">
-                  <Text style={styles.textHeader}>LOCATION :{`   `}</Text>
+                  <Text style={styles.textHeader}>CUSTOMER :{`   `}</Text>
                   <Text style={styles.textContent}>
-                    {itemDetail?.Location_Des || ""}
+                    {/* {itemDetail?.Location_Des || ""} */}
+                  </Text>
+                </Text>
+                <Divider style={styles.divider} />
+                <Text fontSize="md">
+                  <Text style={styles.textHeader}>TEAM :{`   `}</Text>
+                  <Text style={styles.textContent}>
+                    {/* {itemDetail?.Location_Des || ""} */}
                   </Text>
                 </Text>
                 <Divider style={styles.divider} />
@@ -289,4 +289,4 @@ const styles: any = {
   },
 };
 
-export default CheckStock;
+export default CheckPart;

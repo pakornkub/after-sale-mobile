@@ -1,13 +1,13 @@
 import { useQuery, useMutation, useQueryClient } from "react-query";
 import { httpClient } from "../services/axios";
 
-export const useReceiveSP = () => {
-  const getReceiveSP = async () => {
-    return await httpClient.get('/receive_sp');
+export const useReceivePart = () => {
+  const getReceivePart = async () => {
+    return await httpClient.get('/receive_part');
   };
   return useQuery(
-    "ReceiveSP",
-    () => getReceiveSP(),
+    "ReceivePart",
+    () => getReceivePart(),
     {
       enabled: true,
       refetchOnWindowFocus: true,
@@ -17,42 +17,42 @@ export const useReceiveSP = () => {
   );
 };
 
-export const useReceiveSPItem = ({Rec_ID}: any) => {
+export const useReceivePartItem = ({Rec_ID}: any) => {
 
-  const getReceiveSPItem = async (Rec_ID: any) => {
+  const getReceivePartItem = async (Rec_ID: any) => {
     
-    return await httpClient.get(`/receive_sp_item?Rec_ID=${Rec_ID}`);
+    return await httpClient.get(`/receive_part_item?Rec_ID=${Rec_ID}`);
   };
   return useQuery<any, any, any>(
-    ["ReceiveSPItem", Rec_ID],
-    () => getReceiveSPItem(Rec_ID),
+    ["ReceivePartItem", Rec_ID],
+    () => getReceivePartItem(Rec_ID),
     {
       enabled: true,
     }
   );
 };
 
-export const useExecReceiveSPTransactions = () => {
+export const useExecReceivePartTransactions = () => {
 
   const queryClient = useQueryClient();
 
-  const execReceiveSPTransactions = async (params: any): Promise<any> => {
+  const execReceivePartTransactions = async (params: any): Promise<any> => {
     let data = new FormData();
 
     Object.keys(params).forEach((value) => {
       data.append(value, params[value] || "");
     });
 
-    return await httpClient.post("/exec_receive_sp_transaction", data);
+    return await httpClient.post("/exec_receive_part_transaction", data);
   };
 
   return useMutation<any, any, any>(
-    "ExecReceiveSPTransactions",
-    (params) => execReceiveSPTransactions(params),
+    "ExecReceivePartTransactions",
+    (params) => execReceivePartTransactions(params),
     {
       onSuccess: (response) => {
 
-        queryClient.invalidateQueries('ReceiveSPItem');
+        queryClient.invalidateQueries('ReceivePartItem');
 
       },
       onError: (error) => {
@@ -64,27 +64,27 @@ export const useExecReceiveSPTransactions = () => {
   );
 };
 
-export const useUpdateReceiveSP = () => {
+export const useUpdateReceivePart = () => {
 
   const queryClient = useQueryClient();
 
-  const updateReceiveSP = async (params: any): Promise<any> => {
+  const updateReceivePart = async (params: any): Promise<any> => {
     let data = new FormData();
 
     Object.keys(params).forEach((value) => {
       data.append(value, params[value] || "");
     });
 
-    return await httpClient.post("/update_receive_sp", data);
+    return await httpClient.post("/update_receive_part", data);
   };
 
   return useMutation<any, any, any>(
-    "UpdateReceiveSP",
-    (params) => updateReceiveSP(params),
+    "UpdateReceivePart",
+    (params) => updateReceivePart(params),
     {
       onSuccess: (response) => {
 
-        queryClient.invalidateQueries('ReceiveSP');
+        queryClient.invalidateQueries('ReceivePart');
 
       },
       onError: (error) => {
