@@ -15,7 +15,7 @@ export const DynamicMenu: any = {
   CountStockMobile: CountStock,
   SplitPartMobile: SplitPart,
   ReceiveSaleServiceMobile: ReceiveSaleService,
-  RequestSaleServiceMobile: ReceiveSaleService,
+  RequestSaleServiceMobile: RequestSaleService,
 };
 
 // Note : set menu name to dynamic menu
