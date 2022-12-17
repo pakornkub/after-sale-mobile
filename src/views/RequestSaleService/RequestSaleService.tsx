@@ -87,7 +87,12 @@ const RequestSaleService: React.FC = () => {
 
     const qr = getDataFromQR(value);
 
-    setItem({ ...item, QR_NO: qr?.QR_NO || '', Tag_ID: qr?.Tag_ID || '' });
+    setItem({
+      ...item,
+      QR_NO: qr?.QR_NO || "",
+      Tag_ID: qr?.Tag_ID || "",
+      Item_ID: qr?.Item_ID || "",
+    });
 
     refScanner.current = true;
   };
@@ -117,6 +122,16 @@ const RequestSaleService: React.FC = () => {
 
     if (!order.Withdraw_ID) {
       setErrors({ ...errors, Withdraw_ID: 'Receive Order is required' });
+      clearState('Item');
+      return false;
+    }
+
+    if (
+      itemData.data.data.filter((value: any) => {
+        return parseInt(value.Item_ID) === parseInt(item.Item_ID) && parseInt(value.Request) === parseInt(value.Total);
+      }).length > 0
+    ) {
+      setErrors({ ...errors, QR_NO: 'This Item Request Completed' });
       clearState('Item');
       return false;
     }
