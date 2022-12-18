@@ -16,7 +16,7 @@ import { styles } from '../styles';
 
 const ReceiveReturn: React.FC = () => {
   const initOrder = { Rec_ID: '' };
-  const initItem = { QR_NO: '', Item_ID: '' };
+  const initItem = { QR_NO: '', Tag_ID: '' };
   const initErrors = {};
 
   const toast = useToast();
@@ -82,7 +82,7 @@ const ReceiveReturn: React.FC = () => {
 
     const qr = getDataFromQR(value);
 
-    setItem({ ...item, QR_NO: qr?.QR_NO || '', Item_ID: qr?.Item_ID || '' });
+    setItem({ ...item, QR_NO: qr?.QR_NO || '', Tag_ID: qr?.Tag_ID });
 
     refScanner.current = true;
   };
@@ -116,18 +116,8 @@ const ReceiveReturn: React.FC = () => {
       return false;
     }
 
-    if (!item.QR_NO || !item.Item_ID) {
+    if (!item.QR_NO || !item.Tag_ID) {
       setErrors({ ...errors, QR_NO: 'Invalid QR format' });
-      clearState('Item');
-      return false;
-    }
-
-    if (
-      itemData.data.data.filter((value: any) => {
-        return parseInt(value.Item_ID) === parseInt(item.Item_ID) && parseInt(value.Good) === parseInt(value.Total);
-      }).length > 0
-    ) {
-      setErrors({ ...errors, QR_NO: 'This Item Good Completed' });
       clearState('Item');
       return false;
     }
