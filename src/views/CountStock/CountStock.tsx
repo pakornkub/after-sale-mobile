@@ -286,7 +286,7 @@ const CountStock: React.FC = () => {
                         <Text bold>NO.</Text>
                       </DataTable.Title>
                       <DataTable.Title style={styles.table_title_54}>
-                        <Text bold>PART/FG</Text>
+                        <Text bold>PART</Text>
                       </DataTable.Title>
                       <DataTable.Title numeric style={styles.table_title_18}>
                         <Text bold>ACT</Text>

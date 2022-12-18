@@ -254,14 +254,21 @@ const CheckPart: React.FC = () => {
                 <Text fontSize="md">
                   <Text style={styles.textHeader}>CUSTOMER :{`   `}</Text>
                   <Text style={styles.textContent}>
-                    {/* {itemDetail?.Location_Des || ""} */}
+                    {itemDetail?.Customer_Name || ""}
+                  </Text>
+                </Text>
+                <Divider style={styles.divider} />
+                <Text fontSize="md">
+                  <Text style={styles.textHeader}>QUOTATION No :{`   `}</Text>
+                  <Text style={styles.textContent}>
+                    {itemDetail?.Quotation_No || ""}
                   </Text>
                 </Text>
                 <Divider style={styles.divider} />
                 <Text fontSize="md">
                   <Text style={styles.textHeader}>TEAM :{`   `}</Text>
                   <Text style={styles.textContent}>
-                    {/* {itemDetail?.Location_Des || ""} */}
+                    {itemDetail?.Team || ""}
                   </Text>
                 </Text>
                 <Divider style={styles.divider} />
