@@ -1,0 +1,32 @@
+{
+  "cli": {
+    "version": ">= 3.15.0"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal"
+    },
+    "preview": {
+      "distribution": "internal",
+      "channel": "preview",
+      "env": {
+        "REACT_APP_API_URL": "http://119.59.105.14/after-sale-api-mobile",
+        "REACT_APP_PLATFORM" : "MA"
+      }
+    },
+    "production": {
+      "channel": "production",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "REACT_APP_API_URL": "http://as-spare-part.ttlsystem.com:5000/after-sale-api-mobile",
+        "REACT_APP_PLATFORM" : "MA"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
